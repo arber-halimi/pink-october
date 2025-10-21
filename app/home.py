@@ -21,7 +21,7 @@ try:
 except Exception:
     REPORTLAB_OK = False
 
-st.set_page_config(page_title="Pink October AI", page_icon="🎀", layout="centered")
+st.set_page_config(page_title="Zbulo Heret", page_icon="🎀", layout="centered")
 
 # ── Pink theme + labels above inputs
 st.markdown("""
@@ -34,20 +34,27 @@ st.markdown("""
   .wdbc-label { font-weight:700; color:#e75480; margin-bottom:2px; }
   .wdbc-normal { font-size:0.9rem; color:#c7376a; margin-bottom:6px; }
   div[data-testid="stMetricValue"]{ color:#e75480 !important; }
+  .dataset-info { 
+    background-color:#fff0f5; 
+    padding:15px; 
+    border-radius:10px; 
+    border-left:4px solid #e75480;
+    margin-bottom:20px;
+  }
 </style>
 """, unsafe_allow_html=True)
 
 ROOT = Path(__file__).resolve().parent           # app/
 MODELS_DIR = ROOT.parent / "models"              # models/
 
-st.title("🎀 Pink October AI — Parashikime me AI")
+st.title("🎀 Zbulo Heret AI — Parashikime me AI")
 st.caption("Demonstrim edukativ — jo mjet diagnostik.")
 
 # Tabs
 tab_general, tab_wdbc, tab_busi = st.tabs([
-    "Pyetje te pergjithshme",
-    "🧮 Modeli Numerik (WDBC)",
-    "🩻 Modeli me Ultratinguj (BUSI)",
+    "👥 Testim i hershëm",
+    "🧮 Modeli i të Dhënave Klinike",
+    "🩻 Analiza me Ultratinguj",
 ])
 
 # ─────────────────────────────────────────────────────────────
@@ -71,6 +78,28 @@ st.session_state.setdefault("bcsc_chart_png", None)
 # ----------------------------------------------------------
 with tab_wdbc:
     st.subheader("Parashikimi nga të dhënat diagnostikuese (Modeli Numerik)")
+    
+    # Përshkrimi i dataset-it WDBC
+    with st.expander("ℹ️ Rreth Dataset-it WDBC (Wisconsin Diagnostic Breast Cancer)", expanded=False):
+        st.markdown("""
+        <div class="dataset-info">
+        <h4>📊 Wisconsin Diagnostic Breast Cancer Dataset</h4>
+        <p><strong>Burimi:</strong> Universiteti i Wisconsin-Madison</p>
+        <p><strong>Përshkrim:</strong> Ky dataset përmban 30 veçori numerike të nxjerra nga imazhet digitale të biopsive të gjirit.</p>
+        <p><strong>Madhësia:</strong> 569 mostra (357 beninj, 212 malinj)</p>
+        <p><strong>Veçoritë kryesore:</strong> 
+        <ul>
+            <li>Radius (rreze) - mesatare e distancave nga qendra në pika në periferi</li>
+            <li>Texture (teksturë) - devijimi standard i vlerave të shkallës së gri</li>
+            <li>Perimeter (perimetër) - gjatësia e kufirit të tumorit</li>
+            <li>Area (sipërfaqe) - zona brenda kufirit</li>
+            <li>Smoothness (lëmuarësi) - ndryshimet lokale në gjatësi të rrezeve</li>
+        </ul>
+        </p>
+        <p><strong>Qëllimi:</strong> Ndifarimi midis tumoreve beninj dhe malinj bazuar në karakteristikat celulare.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
     st.write("Fushat mbeten në anglisht; **Normal** tregon vlera tipike të dataset-it (jo pragje klinike).")
 
     # Load model quietly
@@ -127,15 +156,108 @@ with tab_wdbc:
             proba = float(wdbc_model.predict_proba(Xs)[0,1])
 
             st.metric("Probabiliteti i Malinjitetit", f"{proba:.1%}")
+            
+            # Informacione të detajuara bazuar në rezultatin
+            st.markdown("---")
+            
             if proba < 0.4:
                 wdbc_label = "Beninj (jo kancerogjen)"
                 st.success("💖 Prapësi Beninje — brenda kufijve tipikë.")
+                
+                st.success("""
+                ### ✅ Karakteristika Beninje
+                **Çfarë do të thotë:**
+                - Vlerat tuaja tregojnë tipare tipike të tumoreve **beninje** (jo-kancerogjene)
+                - Kjo është një gjendje **e padëmshme** që nuk përhapet
+                - Tumoret beninje janë zakonisht të qëndrueshme dhe nuk kërkojnë trajtim agresiv
+                
+                **Karakteristikat tipike:**
+                - Formë e rregullt dhe kufij të qartë
+                - Rritje e ngadaltë dhe e kontrolluar
+                - Nuk pushtojnë indet përreth
+                - Nuk formojnë metastaza
+                
+                **Çfarë duhet të bëni:**
+                - ✅ **Konsultohuni me mjekun** për konfirmim
+                - ✅ Ndiqni rekomandimet për monitorim të rregullt
+                - ✅ Shumica e rasteve kërkojnë vetëm vëzhgim
+                - ✅ Ruani një stil jetese të shëndetshëm
+                
+                **📊 Ky është një rezultat i favorshëm!**
+                """)
+                
             elif proba < 0.7:
                 wdbc_label = "Kufitare"
                 st.warning("💞 Kufitare — disa vlera jashtë diapazonit tipik.")
+                
+                st.warning("""
+                ### ⚠️ Rezultat Kufitar
+                **Çfarë do të thotë:**
+                - Disa nga vlerat tuaja janë **jashtë intervalit normal**
+                - Modeli nuk është i sigurt nëse masa është beninje apo malinje
+                - Kjo **nuk është një diagnozë** por një paralajmërim për vëmendje
+                
+                **Karakteristikat e vërejura:**
+                - Disa parametra tregojnë devijime nga normalt
+                - Mund të ketë tipare të përziera beninje dhe malinje
+                - Kërkon vlerësim të mëtejshëm për konfirmim
+                
+                **Çfarë duhet të bëni NJËHERËSH:**
+                - 🚨 **KONSULTOHUNI ME MJEKUN** për vlerësim të plotë
+                - 🚨 Kërkoni teste shtesë (ultratinguj, mamografi, biopsi)
+                - 🚨 Mos e injoroni këtë rezultat
+                - 🚨 Ndiqni udhëzimet e specialistit
+                
+                **Testet e rekomanduara:**
+                - Imazhim i avancuar (MRI, ultratinguj)
+                - Biopsi për diagnozë definitive
+                - Konsultë me specialist të gjirit
+                
+                **🩺 Kjo kërkon vëmendje të menjëhershme mjekësore!**
+                """)
+                
             else:
                 wdbc_label = "Malinj (i dyshuar)"
                 st.error("💔 Modeli tregon tipare të mundshme malinje.")
+                
+                st.error("""
+                ### 🚨 Karakteristika të Dyshimta Malinje
+                **Çfarë do të thotë:**
+                - Vlerat tuaja tregojnë tipare që **ngjajnë me kancerin e gjirit**
+                - Kjo **nuk është diagnozë definitive** por tregon nevojë për veprim të shpejtë
+                - Modeli ka identifikuar parametra që janë tipikë për tumoret malinje
+                
+                **Karakteristikat alarmante:**
+                - Formë e parregullt dhe kufij të paqartë
+                - Rritje e shpejtë dhe e pakontrolluar
+                - Aftësi për të pushtuar indet përreth
+                - Potencial për formimin e metastazave
+                
+                **Çfarë duhet të bëni MENJËHERË:**
+                - 🚨 **TAKIM URGJENT ME SPECIALIST** të gjirit
+                - 🚨 **NUK VONONI** vlerësimin mjekësor
+                - 🚨 Përgatituni për teste të plota diagnostikuese
+                - 🚨 Kërkoni opinion të dytë nëse është e nevojshme
+                
+                **Testet e nevojshme për konfirmim:**
+                - Biopsi e drejtpërdrejtë
+                - MRI e gjirit
+                - Teste patologjike të plota
+                - Vlerësim oncologjik
+                
+                **💊 VEPRONI SA MË SHPEJTËT E MUNDSHME!**
+                """)
+
+            # Këshilla të përgjithshme për të gjitha rastet
+            st.markdown("---")
+            st.info("""
+            **ℹ️ Informacion i rëndësishëm:**
+            - Ky model analizon **veçori numerike** nga imazhet e biopsive
+            - Rezultatet bazohen në **statistikë** dhe **mund të kenë gabime**
+            - **Vetëm një patolog** mund të japë diagnozë definitive përmes biopsisë
+            - Të dhënat janë nga **dataset akademik** dhe **nuk zëvendësojnë konsultimin mjekësor**
+            - Gjithmonë ndiqni këshillat e specialistit tuaj shëndetësor
+            """)
 
             # Save to state for reports
             st.session_state.wdbc_inputs = {
@@ -152,12 +274,36 @@ with tab_wdbc:
             }
             st.session_state.wdbc_proba = proba
             st.session_state.wdbc_label = wdbc_label
-
 # ----------------------------------------------------------
 # 2️⃣ BUSI MODEL (Ultrasound)
 # ----------------------------------------------------------
 with tab_busi:
     st.subheader("Ngarko një imazh me ultratinguj")
+    
+    # Përshkrimi i dataset-it BUSI
+    with st.expander("ℹ️ Rreth Dataset-it BUSI (Breast Ultrasound Images)", expanded=False):
+        st.markdown("""
+        <div class="dataset-info">
+        <h4>🩻 Breast Ultrasound Images Dataset (BUSI)</h4>
+        <p><strong>Burimi:</strong> Universiteti i Banha në Bashkimin Egjiptian</p>
+        <p><strong>Përshkrim:</strong> Ky dataset përmban imazhe me ultratinguj të gjirit të grumbulluara nga 600 grave.</p>
+        <p><strong>Madhësia:</strong> 780 imazhe të organizuara në 3 kategori:</p>
+        <ul>
+            <li><strong>Normal:</strong> 133 imazhe - gjiri pa asnjë masë të dukshme</li>
+            <li><strong>Beninj:</strong> 437 imazhe - masa jo-kancerogjene</li>
+            <li><strong>Malinj:</strong> 210 imazhe - masa kancerogjene</li>
+        </ul>
+        <p><strong>Karakteristikat:</strong> 
+        <ul>
+            <li>Të gjitha imazhet janë në shkallë gri</li>
+            <li>Përmbajnë shënime për masat e zbuluara</li>
+            <li>Përdoren për klasifikim automatik të sëmundjeve të gjirit</li>
+        </ul>
+        </p>
+        <p><strong>Qëllimi:</strong> Identifikimi automatik i masave në gjiri dhe klasifikimi i tyre si normal, beninj ose malinj.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
     st.write("Ngarko një imazh nga **BUSI dataset**. AI do ta klasifikojë si **Normal**, **Beninj**, ose **Malinj**.")
 
     # Load BUSI model quietly
@@ -207,17 +353,106 @@ with tab_busi:
             )
             st.progress(conf)
 
+            # Informacione specifike për çdo lloj rezultati
+            st.markdown("---")
+            
+            if pred_class == "normal":
+                st.success("""
+                ### ✅ Gjendje Normale
+                **Çfarë do të thotë:**
+                - Nuk u zbulua asnjë masë e pazakontë në imazhin e ultratingujve
+                - Gjiri duket i shëndetshëm pa ndonjë ndryshim të dyshimtë
+                
+                **Këshilla:**
+                - Vazhdoni me kontrollet rutinë sipas moshës
+                - Bëni vetë-ekzaminim mujor të gjirit
+                - Ruani një stil jetese të shëndetshëm
+                
+                **✅ Vazhdoni me kontrollet e rregullta!**
+                """)
+                
+            elif pred_class == "benign":
+                st.warning("""
+                ### ⚠️ Masë Beninje (Jo-Kancerogjene)
+                **Çfarë do të thotë:**
+                - U zbulua një masë në gjiri, por ajo **nuk është kancerogjene**
+                - Masa beninje janë zakonisht të padëmshme dhe nuk përhapen
+                - Llojet e zakonshme përfshijnë: fibroadenoma, cista, ndryshime fibrocistike
+                
+                **Çfarë duhet të bëni:**
+                - ✅ **Konsultohuni me mjekun tuaj** për vlerësim të mëtejshëm
+                - ✅ Ndiqni rekomandimet e mjekut për monitorim
+                - ✅ Mund të kërkohen teste shtesë (biopsi, MRI)
+                - ✅ Shumica e masave beninje nuk kërkojnë operacion
+                
+                **🩺 Kjo NUK është urgjente, por kërkon vëmendje mjekësore!**
+                """)
+                
+            else:  # malignant
+                st.error("""
+                ### 🚨 Masë Malinje (Kancerogjene)
+                **Çfarë do të thotë:**
+                - U zbulua një masë me tipare të dyshimta për kancer
+                - Kjo **nuk është një diagnozë definitive** - kërkon konfirmim
+                - Modeli AI ka identifikuar karakteristika që ngjajnë me kancerin e gjirit
+                
+                **Çfarë duhet të bëni NJËHERËSH:**
+                - 🚨 **KONSULTOHUNI MENJËHERË ME MJEKUN** tuaj
+                - 🚨 Kërkoni një takim urgjent me specialist të gjirit
+                - 🚨 Përgatituni për teste shtesë (biopsi, mamografi)
+                - 🚨 Mos e vononi vlerësimin mjekësor
+                
+                **Testet e nevojshme për konfirmim:**
+                - Biopsi për diagnozë definitive
+                - MRI e gjirit
+                - Teste laboratorike
+                - Vlerësim i plotë nga oncolog
+                
+                **💊 Kujdes: Ky rezultat kërkon veprim të shpejtë!**
+                """)
+
+            # Këshilla të përgjithshme për të gjitha rastet
+            st.markdown("---")
+            st.info("""
+            **ℹ️ Kujdes i rëndësishëm:**
+            - Ky është një **model edukativ AI** dhe **NUK zëvendëson vlerësimin mjekësor**
+            - Rezultatet janë të bazuara në analizën e imazhit dhe mund të kenë gabime
+            - **Vetëm një mjek i certifikuar** mund të japë një diagnozë të saktë
+            - Gjithmonë ndiqni këshillat e specialistit tuaj shëndetësor
+            """)
+
             # store for report
             st.session_state.busi_pred = pred_class
             st.session_state.busi_conf = conf
     else:
         st.info("📤 Ju lutem ngarkoni një imazh për të filluar.")
-
 # ----------------------------------------------------------
 # 3️⃣ GENERAL MODEL (BCSC-like) — pink pie + pretty PDF
 # ----------------------------------------------------------
 with tab_general:
-    st.header("🧠 Modeli i Stilit të Jetës - BCSC Risk Factors Dataset")
+    st.subheader("Modeli i Stilit të Jetës - BCSC Risk Factors Dataset")
+    
+    # Përshkrimi i dataset-it BCSC
+    with st.expander("ℹ️ Rreth Dataset-it BCSC (Breast Cancer Surveillance Consortium)", expanded=False):
+        st.markdown("""
+        <div class="dataset-info">
+        <h4>👥 Breast Cancer Surveillance Consortium (BCSC) Dataset</h4>
+        <p><strong>Burimi:</strong> Breast Cancer Surveillance Consortium - rrjet amerikan i regjistrave të mamografisë</p>
+        <p><strong>Përshkrim:</strong> Ky dataset përmban të dhëna nga miliona screeningje të mamografisë dhe faktorët e rrezikut të shoqëruar.</p>
+        <p><strong>Madhësia:</strong> Miliona regjistrime nga qendra të ndryshme shëndetësore në SHBA</p>
+        <p><strong>Faktorët kryesorë të rrezikut:</strong></p>
+        <ul>
+            <li><strong>Mosha:</strong> Rreziku rritet me moshën</li>
+            <li><strong>Historia familjare:</strong> Nëna, motra ose vajza me kancer të gjirit</li>
+            <li><strong>Dendësia e gjirit:</strong> Gjiri më i dendur = rrezik më i lartë</li>
+            <li><strong>Historia personale:</strong> Biopsi të mëparshme të gjirit</li>
+            <li><strong>Faktorë hormonalë:</strong> Mosha e menstruacioneve, menopauza, terapia hormonale</li>
+            <li><strong>Faktorë të stilit të jetesës:</strong> BMI, ushqim, aktivitet fizik</li>
+        </ul>
+        <p><strong>Qëllimi:</strong> Parashikimi i rrezikut 5-vjeçar për zhvillimin e kancerit të gjirit bazuar në faktorët klinikë dhe të stilit të jetesës.</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
     st.write("Ky model përdor faktorë të rrezikut si mosha, historia familjare dhe stilin e jetës për të vlerësuar rrezikun e kancerit të gjirit.")
 
     # Info to include in the report
@@ -294,41 +529,32 @@ with tab_general:
                 st.success(f"🔮 Rezultati: **Rrezik i ulët** ({pred_prob:.1f}%)")
                 st.info("Sugjerim: Vazhdo me screening rutinë çdo 1–2 vjet.")
 
+            # ── Pink PIE chart: your risk vs remaining (0 - 11.5)
+            fig, ax = plt.subplots(figsize=(4.8, 3.2))
+            risk_value = float(pred_prob)
+            max_possible = 11.5
 
+            risk_capped = min(risk_value, max_possible)
+            remain = max_possible - risk_capped
 
-                # ── Pink PIE chart: your risk vs remaining (0 - 11.5)
-                fig, ax = plt.subplots(figsize=(4.8, 3.2))
-                risk_value = float(pred_prob)
-                max_possible = 11.5  # maksimumi i modelit
+            labels_pie = [f"Rreziku juaj ({risk_capped:.2f})", f"Pjesa e mbetur ({remain:.2f})"]
+            sizes = [risk_capped, remain]
+            colors_pie = ["#e75480", "#ffd6e8"]
+            explode = (0.06, 0.0)
 
-                # Siguro që rreziku nuk e kalon maksimumin
-                risk_capped = min(risk_value, max_possible)
-                remain = max_possible - risk_capped
+            wedges, texts = ax.pie(
+                sizes, explode=explode, labels=labels_pie, startangle=90,
+                colors=colors_pie, textprops={"fontsize": 10}
+            )
+            ax.axis("equal")
+            ax.set_title(f"Përqindja e rrezikut (0 - {max_possible})", fontsize=12)
+            st.pyplot(fig)
 
-                # Labels dhe ngjyrat
-                labels_pie = [f"Rreziku juaj ({risk_capped:.2f})", f"Pjesa e mbetur ({remain:.2f})"]
-                sizes = [risk_capped, remain]
-                colors_pie = ["#e75480", "#ffd6e8"]  # pink + light pink
-                explode = (0.06, 0.0)
-
-                # Krijo chart   
-                wedges, texts = ax.pie(
-                    sizes, explode=explode, labels=labels_pie, autopct=None,
-                    startangle=90, colors=colors_pie, textprops={"fontsize": 10}
-                )
-                ax.axis("equal")
-                ax.set_title(f"Përqindja e rrezikut (0 - {max_possible})", fontsize=12)
-                st.pyplot(fig)
-
-                # Save chart to memory for PDF
-                buf = BytesIO()
-                fig.savefig(buf, format="png", bbox_inches="tight", dpi=200)
-                st.session_state.bcsc_chart_png = buf.getvalue()
-                plt.close(fig)
-
-
-
-
+            # Save chart to memory for PDF
+            buf = BytesIO()
+            fig.savefig(buf, format="png", bbox_inches="tight", dpi=200)
+            st.session_state.bcsc_chart_png = buf.getvalue()
+            plt.close(fig)
 
         # ── Pretty PDF export for the General tab
         def build_pretty_pdf_bcsc(
@@ -524,4 +750,4 @@ with tab_general:
                 )
                 st.success("Raporti u gjenerua.")
     except Exception as e:
-        st.error(f"Modeli BCSC General nuk u gjet ose s’mund të ngarkohet: {e}")
+        st.error(f"Modeli BCSC General nuk u gjet ose s'mund të ngarkohet: {e}")
